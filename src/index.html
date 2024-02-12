@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Timer</title>
+    <link rel="stylesheet" href="output.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="./index.js" defer></script>
+  </head>
+  <body
+    class="bg-gray-900 text-white flex flex-col h-screen items-center justify-center gap-y-8"
+  >
+    <h1 class="font-bold text-3xl">Timer</h1>
+    <p class="text-8xl font-light">
+      <span id="minutes">45</span>:<span id="seconds">00</span>
+    </p>
+    <div class="flex gap-x-5">
+      <button
+        id="start-btn"
+        class="text-lg uppercase px-3 py-2 bg-zinc-300 text-gray-900 rounded-sm font-bold"
+      >
+        Start
+      </button>
+      <button
+        id="reset-btn"
+        class="text-lg uppercase px-3 py-2 bg-zinc-300 text-gray-900 rounded-sm font-bold"
+      >
+        Restart
+      </button>
+    </div>
+  </body>
+</html>
