@@ -1,0 +1,3 @@
+# Cronos
+
+Simple timer.
