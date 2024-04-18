@@ -1,6 +1,5 @@
-export function clearTiming(intervalId, timeoutId) {
-  clearInterval(intervalId.current);
-  clearTimeout(timeoutId.current);
+export function formattedTimeDigit(timeDigit) {
+  return timeDigit.toString().padStart(2, "0");
 }
 
 export function timeToSeconds({ hours, minutes, seconds }) {
@@ -16,6 +15,19 @@ export function secondsToTime(seconds) {
   const minutes = Math.floor(varSeconds / 60);
   varSeconds = varSeconds % 60;
   return { hours, minutes, seconds: varSeconds };
+}
+
+export function timeToString(time) {
+  return Object.values(time).map(formattedTimeDigit).join("");
+}
+
+export function stringToTime(string) {
+  console.log(string);
+  return {
+    hours: Number(string.slice(2)),
+    minutes: Number(string.slice(2, 4)),
+    seconds: Number(string.slice(4, -1)),
+  };
 }
 
 export function simplifyTime({ hours, minutes, seconds }) {
