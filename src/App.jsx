@@ -34,6 +34,7 @@ const App = () => {
   const singleDigitIx = booleanArray.findIndex((bool) => bool);
   const audioRef = useRef(null);
   const clickedRef = useRef(false);
+  const inputRef = useRef(null);
 
   if (counting) {
     document.title = simplifyTime(formattedTime);
@@ -85,15 +86,9 @@ const App = () => {
 
   useEffect(() => {
     if (isSetting) {
+      inputRef.current.focus();
       setFormattedTime({ hours: 0, minutes: 0, seconds: 0 });
       setCounting(false);
-    } else {
-      setFormattedTime(({ hours, minutes, seconds }) => {
-        if (hours === 0 && minutes === 0 && seconds === 0) {
-          return DEFAULT_TIME;
-        }
-        return secondsToTime(timeToSeconds({ hours, minutes, seconds }));
-      });
     }
   }, [isSetting]);
 
@@ -108,7 +103,19 @@ const App = () => {
               clickedRef.current = true;
             }
           }}
-          onClick={() => setIsSetting((prevIsSetting) => !prevIsSetting)}
+          onClick={() => {
+            if (isSetting) {
+              setFormattedTime(({ hours, minutes, seconds }) => {
+                if (hours === 0 && minutes === 0 && seconds === 0) {
+                  return DEFAULT_TIME;
+                }
+                return secondsToTime(
+                  timeToSeconds({ hours, minutes, seconds }),
+                );
+              });
+            }
+            setIsSetting((prevIsSetting) => !prevIsSetting);
+          }}
         >
           {
             <>
@@ -123,24 +130,19 @@ const App = () => {
                     />
                   ),
               )}
-              {isSetting && (
-                <>
-                  <input
-                    className="absolute h-0 w-0"
-                    value={timeString}
-                    onChange={handleInput}
-                    onBlur={() => {
-                      console.log(clickedRef);
-                      if (clickedRef.current) {
-                        clickedRef.current = false;
-                      } else {
-                        setIsSetting(false);
-                      }
-                    }}
-                    autoFocus
-                  />
-                </>
-              )}
+              <input
+                className="absolute h-0 w-0"
+                value={timeString}
+                ref={inputRef}
+                onChange={handleInput}
+                onBlur={() => {
+                  if (clickedRef.current) {
+                    clickedRef.current = false;
+                  } else {
+                    setIsSetting(false);
+                  }
+                }}
+              />
             </>
           }
         </div>
