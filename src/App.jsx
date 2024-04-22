@@ -3,25 +3,37 @@ import {
   timeToSeconds,
   secondsToTime,
   simplifyTime,
-  formattedTimeDigit,
   timeToString,
   stringToTime,
+  determineRenders,
 } from "./helpers";
 import alarm from "./data/alarm.mp3";
 import GlobalWrapper from "./GlobalWrapper";
+import { TimeNumber } from "./components/TimeNumber";
+
+const DEFAULT_TIME = {
+  hours: 0,
+  minutes: 30,
+  seconds: 0,
+};
+
+const INDEX_SYMBOL = {
+  0: "h",
+  1: "m",
+  2: "s",
+};
 
 const App = () => {
-  const DEFAULT_TIME = {
-    hours: 0,
-    minutes: 25,
-    seconds: 0,
-  };
   const [counting, setCounting] = useState(false);
   const [formattedTime, setFormattedTime] = useState(DEFAULT_TIME);
   const timeLimit = timeToSeconds(formattedTime);
+  const timeString = timeToString(formattedTime);
   const [isSetting, setIsSetting] = useState(false);
-  const { hours, minutes, seconds } = formattedTime;
+  const timeArray = Object.values(formattedTime);
+  const booleanArray = determineRenders(formattedTime);
+  const singleDigitIx = booleanArray.findIndex((bool) => bool);
   const audioRef = useRef(null);
+  const clickedRef = useRef(false);
 
   if (counting) {
     document.title = simplifyTime(formattedTime);
@@ -32,6 +44,19 @@ const App = () => {
       audioRef.current.play();
     }
   };
+
+  function handleInput(event) {
+    const newChar = event.nativeEvent.data;
+    setFormattedTime((prevFormattedTime) => {
+      let timeString = timeToString(prevFormattedTime);
+      if (newChar) {
+        timeString = timeString.slice(1).padEnd(6, newChar);
+      } else {
+        timeString = timeString.slice(0, -1).padStart(6, "0");
+      }
+      return stringToTime(timeString);
+    });
+  }
 
   useEffect(() => {
     let timerWorker;
@@ -47,6 +72,8 @@ const App = () => {
           playAudio();
         }
       };
+    } else {
+      document.title = "Cronos";
     }
 
     return () => {
@@ -56,58 +83,82 @@ const App = () => {
     };
   }, [counting]);
 
+  useEffect(() => {
+    if (isSetting) {
+      setFormattedTime({ hours: 0, minutes: 0, seconds: 0 });
+      setCounting(false);
+    } else {
+      setFormattedTime(({ hours, minutes, seconds }) => {
+        if (hours === 0 && minutes === 0 && seconds === 0) {
+          return DEFAULT_TIME;
+        }
+        return secondsToTime(timeToSeconds({ hours, minutes, seconds }));
+      });
+    }
+  }, [isSetting]);
+
   return (
     <GlobalWrapper>
       <div className="mb-12 flex w-fit max-w-lg flex-col items-center gap-y-10">
         <h1 className="text-4xl">Cronos</h1>
         <div
           className={`flex select-none gap-x-4 text-8xl hover:cursor-pointer ${isSetting ? "text-white/50" : ""}`}
-          onClick={() =>
-            setIsSetting((prevIsSetting) => {
-              return !prevIsSetting;
-            })
-          }
+          onMouseDown={() => {
+            if (isSetting) {
+              clickedRef.current = true;
+            }
+          }}
+          onClick={() => setIsSetting((prevIsSetting) => !prevIsSetting)}
         >
           {
             <>
-              <div>
-                {formattedTimeDigit(hours)}
-                <span className="text-4xl">h</span>
-              </div>
-              <div>
-                {formattedTimeDigit(minutes)}
-                <span className="text-4xl">m</span>
-              </div>
-              <div>
-                {formattedTimeDigit(seconds)}
-                <span className="text-4xl">s</span>
-              </div>
-              <input
-                className="hidden h-0 w-0"
-                value={timeToString(formattedTime)}
-                onChange={(e) => setFormattedTime(stringToTime(e.target.value))}
-                autoFocus
-              />
+              {booleanArray.map(
+                (doesRender, ix) =>
+                  (doesRender || isSetting) && (
+                    <TimeNumber
+                      key={Math.random()}
+                      time={timeArray[ix]}
+                      symbol={INDEX_SYMBOL[ix]}
+                      singleDigit={ix === singleDigitIx && !isSetting}
+                    />
+                  ),
+              )}
+              {isSetting && (
+                <>
+                  <input
+                    className="absolute h-0 w-0"
+                    value={timeString}
+                    onChange={handleInput}
+                    onBlur={() => {
+                      console.log(clickedRef);
+                      if (clickedRef.current) {
+                        clickedRef.current = false;
+                      } else {
+                        setIsSetting(false);
+                      }
+                    }}
+                    autoFocus
+                  />
+                </>
+              )}
             </>
           }
         </div>
         <div className="flex gap-x-4">
           <button
             className="rounded-sm bg-white px-4 py-2 text-xl font-medium text-slate-900 transition-transform hover:scale-110 active:opacity-70"
-            onClick={() => setCounting(true)}
+            onClick={() => {
+              setCounting((prevCounting) => !prevCounting);
+              setIsSetting(false);
+            }}
           >
-            Start
-          </button>
-          <button
-            className="rounded-sm bg-white px-4 py-2 text-xl font-medium text-slate-900 transition-transform hover:scale-110 active:opacity-70"
-            onClick={() => setCounting(false)}
-          >
-            Stop
+            {counting ? "Stop" : "Start"}
           </button>
           <button
             className="rounded-sm bg-white px-4 py-2 text-xl font-medium text-slate-900 transition-transform hover:scale-110 active:opacity-70"
             onClick={() => {
               setCounting(false);
+              setIsSetting(false);
               setFormattedTime(DEFAULT_TIME);
             }}
           >
