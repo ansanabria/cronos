@@ -47,16 +47,18 @@ const App = () => {
   };
 
   function handleInput(event) {
-    const newChar = event.nativeEvent.data;
-    setFormattedTime((prevFormattedTime) => {
-      let timeString = timeToString(prevFormattedTime);
-      if (newChar) {
-        timeString = timeString.slice(1).padEnd(6, newChar);
-      } else {
-        timeString = timeString.slice(0, -1).padStart(6, "0");
-      }
-      return stringToTime(timeString);
-    });
+    const newChar = Number(event.nativeEvent.data);
+    if (typeof newChar === "number") {
+      setFormattedTime((prevFormattedTime) => {
+        let timeString = timeToString(prevFormattedTime);
+        if (newChar) {
+          timeString = timeString.slice(1).padEnd(6, newChar);
+        } else {
+          timeString = timeString.slice(0, -1).padStart(6, "0");
+        }
+        return stringToTime(timeString);
+      });
+    }
   }
 
   useEffect(() => {
@@ -89,6 +91,13 @@ const App = () => {
       inputRef.current.focus();
       setFormattedTime({ hours: 0, minutes: 0, seconds: 0 });
       setCounting(false);
+    } else {
+      setFormattedTime(({ hours, minutes, seconds }) => {
+        if (hours === 0 && minutes === 0 && seconds === 0) {
+          return DEFAULT_TIME;
+        }
+        return secondsToTime(timeToSeconds({ hours, minutes, seconds }));
+      });
     }
   }, [isSetting]);
 
@@ -131,6 +140,7 @@ const App = () => {
                   ),
               )}
               <input
+                type="text"
                 className="absolute h-0 w-0"
                 value={timeString}
                 ref={inputRef}
