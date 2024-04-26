@@ -47,12 +47,14 @@ const App = () => {
   };
 
   function handleInput(event) {
-    let newChar = parseInt(event.nativeEvent.data);
+    const { inputType, data } = event.nativeEvent;
+    let newChar = parseInt(data);
+    console.log(event);
     setFormattedTime((prevFormattedTime) => {
       let timeString = timeToString(prevFormattedTime);
       if (Number.isInteger(newChar)) {
         timeString = timeString.slice(1).padEnd(6, newChar);
-      } else {
+      } else if (inputType === "deleteContentBackward") {
         timeString = timeString.slice(0, -1).padStart(6, "0");
       }
       return stringToTime(timeString);
