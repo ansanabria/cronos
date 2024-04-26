@@ -47,18 +47,16 @@ const App = () => {
   };
 
   function handleInput(event) {
-    const newChar = Number(event.nativeEvent.data);
-    if (typeof newChar === "number") {
-      setFormattedTime((prevFormattedTime) => {
-        let timeString = timeToString(prevFormattedTime);
-        if (newChar) {
-          timeString = timeString.slice(1).padEnd(6, newChar);
-        } else {
-          timeString = timeString.slice(0, -1).padStart(6, "0");
-        }
-        return stringToTime(timeString);
-      });
-    }
+    let newChar = parseInt(event.nativeEvent.data);
+    setFormattedTime((prevFormattedTime) => {
+      let timeString = timeToString(prevFormattedTime);
+      if (Number.isInteger(newChar)) {
+        timeString = timeString.slice(1).padEnd(6, newChar);
+      } else {
+        timeString = timeString.slice(0, -1).padStart(6, "0");
+      }
+      return stringToTime(timeString);
+    });
   }
 
   useEffect(() => {
