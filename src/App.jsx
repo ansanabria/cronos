@@ -49,7 +49,6 @@ const App = () => {
   function handleInput(event) {
     const { inputType, data } = event.nativeEvent;
     let newChar = parseInt(data);
-    console.log(event);
     setFormattedTime((prevFormattedTime) => {
       let timeString = timeToString(prevFormattedTime);
       if (Number.isInteger(newChar)) {
